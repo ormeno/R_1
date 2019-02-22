@@ -52,8 +52,7 @@ public class Main {
         Consultorio bot = new Consultorio(botOptions);
         //BotApi20 bot = new BotApi20(botOptions);
         //LoggingTestBot bot = new LoggingTestBot(botOptions);
-        //EmojiTestBot bot = new EmojiTestBot(botOptions);
-        
+        //EmojiTestBot bot = new EmojiTestBot(botOptions);        
         // Register our bot
         try {
             //botsApi.registerBot(new OrmenoBot());
