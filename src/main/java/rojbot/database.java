@@ -1,7 +1,11 @@
 package rojbot;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
@@ -16,14 +20,24 @@ import rojbot.Pregunta;
  * Puedes seguirme en mi web http://www.codigoxules.org).
  */
 public class database {
- 
-	private final String url = "jdbc:postgresql://localhost:5432/telegramBotDB";
-	private final String user = "postgres";
-	private final String password = "1234";	       
-    
+ 	 
     public Connection connect() {
-        Connection conn = null;
-        try {
+        
+        Properties prop = new Properties();	
+		InputStream is = null;		
+		try {
+			is = new FileInputStream("src/main/resources/configuracion.properties");
+			prop.load(is);
+		} catch(IOException e) {
+			System.out.println(e.toString());
+		}
+		
+		String url = prop.getProperty("var.url");
+		String user = prop.getProperty("var.user");
+		String password = prop.getProperty("var.password");
+		
+		Connection conn = null;
+        try {        	        	
             conn = DriverManager.getConnection(url, user, password);
             System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (SQLException e) {

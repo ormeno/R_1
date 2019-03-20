@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.AnswerPreCheckoutQuery;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
@@ -26,13 +27,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -50,7 +56,8 @@ public class Consultorio extends TelegramLongPollingBot {
 	ForwardMessage f = new ForwardMessage();
 
 	
-    @Override
+    @SuppressWarnings("unused")
+	@Override
     public void onUpdateReceived(Update update) {    
     	    	    
     	// We check if the update has a message and the message has text
@@ -62,7 +69,7 @@ public class Consultorio extends TelegramLongPollingBot {
             String user_username = update.getMessage().getChat().getUserName();            
             long user_id = update.getMessage().getChat().getId();
             long chat_id = update.getMessage().getChatId();                        
-
+            Iterator<Row> rowIterator = null;            
             
             //System.out.println("message_text -> " + message_text);                                              
             if (message_text.equals("/start")) {
@@ -127,8 +134,160 @@ public class Consultorio extends TelegramLongPollingBot {
 			    } catch (TelegramApiException e) {
 			        e.printStackTrace();
 			    }		    
-			}
-            else {
+			} else if (message_text.toUpperCase().equals("/MENU") ) {
+								
+			    ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+			    List<KeyboardRow> keyboard = new ArrayList<>();
+			    KeyboardRow rowBotonera = new KeyboardRow();
+			    // Set each button, you can also use KeyboardButton objects if you need something else than text
+			    rowBotonera.add("Hoy");
+			    rowBotonera.add("Semana");
+			    rowBotonera.add("Mes");
+			    // Add the first row to the keyboard
+			    keyboard.add(rowBotonera);
+			    keyboardMarkup.setKeyboard(keyboard); 			   			    
+								
+				SendMessage msg = new SendMessage()
+		                .setChatId(chat_id)
+		                .setReplyMarkup(keyboardMarkup)
+		                .setText("Elige una opción: ");		                		               
+			    try {
+			        execute(msg); // Call method to send the photo
+			    } catch (TelegramApiException e) {
+			        e.printStackTrace();
+			    }		    
+			} else if (message_text.equals("Hoy")) {
+				
+				String finalMessage = new String("<b> MENU DE HOY </b> \n");
+				finalMessage = finalMessage.concat("------------------------------------------- \n");
+				menu men = new menu();								
+				String nombreArchivo = "menu.xlsx";
+				String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;				
+				rowIterator = men.LeerFicherosExcel(rutaArchivo);
+
+				Row row;
+				int numRow = 0;															
+				Calendar calendar = Calendar.getInstance();
+				int diaMes = calendar.get(Calendar.DAY_OF_MONTH);
+				
+				while (rowIterator.hasNext()) {					
+					row = rowIterator.next();
+					numRow++;					
+					Iterator<Cell> cellIterator = row.cellIterator();
+					Cell cell;
+					int numCol = 0;
+					boolean pintaLin = false; 
+					//se recorre cada celda
+					while (cellIterator.hasNext()) {
+						// se obtiene la celda en específico						
+						cell = cellIterator.next();
+						numCol++;
+						// Ponemos nombre del mes
+						if (numRow > 5 && numCol == 1 && cell.getNumericCellValue() == diaMes) {
+							pintaLin = true;
+						}
+					    if (pintaLin && numCol == 3) finalMessage = finalMessage.concat(" 1º -> " + cell.getStringCellValue() + " \n");
+					    if (pintaLin && numCol == 4) finalMessage = finalMessage.concat(" 2º -> " + cell.getStringCellValue() + " \n");
+					    if (pintaLin && numCol == 5) finalMessage = finalMessage.concat(" Postre -> " + cell.getStringCellValue() + " \n");
+					}																		
+				}											
+				
+				SendMessage msg = new SendMessage()
+		                .setChatId(chat_id)
+		                .setParseMode(ParseMode.HTML)
+		                .setText(finalMessage);
+				try {
+			        execute(msg); // Call method to send the photo
+			    } catch (TelegramApiException e) {
+			        e.printStackTrace();
+			    }
+			} else if (message_text.equals("Semana")) {
+				
+				String finalMessage = new String("<b> MENU DE LA SEMANA </b> \n");
+				finalMessage = finalMessage.concat("------------------------------------------- \n");
+				menu men = new menu();								
+				String nombreArchivo = "menu.xlsx";
+				String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;				
+				rowIterator = men.LeerFicherosExcel(rutaArchivo);
+
+				Row row;
+				int numRow = 0;															
+				Calendar calendar = Calendar.getInstance();
+				int diaMes = calendar.get(Calendar.DAY_OF_MONTH);
+				int diaSemana = calendar.get(Calendar.DAY_OF_WEEK)-1; if (diaSemana == 0) diaSemana = 7;  
+				//int primerDiaSemana = calendar.getFirstDayOfWeek();
+				int primerDiaSemana = 1;
+				int diaLunesSemAct = diaMes - (diaSemana - primerDiaSemana); 
+				
+				while (rowIterator.hasNext()) {					
+					row = rowIterator.next();
+					numRow++;					
+					Iterator<Cell> cellIterator = row.cellIterator();
+					Cell cell;
+					int numCol = 0;
+					boolean pintaLin = false; 
+					//se recorre cada celda
+					while (cellIterator.hasNext()) {
+						// se obtiene la celda en específico						
+						cell = cellIterator.next();
+						numCol++;
+						// Ponemos nombre del mes
+						if (numRow > 5 && numCol == 1 && cell.getNumericCellValue() >= diaLunesSemAct && cell.getNumericCellValue() < diaLunesSemAct + 5)  {
+							pintaLin = true;							
+						}
+						if (pintaLin && numCol == 2) finalMessage = finalMessage.concat("<b>" + cell.getStringCellValue() + "</b>  \n");
+					    if (pintaLin && numCol == 3) finalMessage = finalMessage.concat(" 1º -> " + cell.getStringCellValue() + " \n");
+					    if (pintaLin && numCol == 4) finalMessage = finalMessage.concat(" 2º -> " + cell.getStringCellValue() + " \n");
+					    if (pintaLin && numCol == 5) finalMessage = finalMessage.concat(" Postre -> " + cell.getStringCellValue() + " \n");    					    
+					}																		
+				}											
+				
+				SendMessage msg = new SendMessage()
+		                .setChatId(chat_id)
+		                .setParseMode(ParseMode.HTML)
+		                .setText(finalMessage);
+				try {
+			        execute(msg); // Call method to send the photo
+			    } catch (TelegramApiException e) {
+			        e.printStackTrace();
+			    }
+			} else if (message_text.equals("Mes") ) {
+								
+				//String finalMessage = new String("<b> MENU DEL MES DE ");
+				menu men = new menu();								
+				String nombreArchivo = "menu.xlsx";
+				String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;
+				Iterator<Row> rowIt1 = null;
+				rowIt1 = men.LeerFicherosExcel(rutaArchivo);
+				Iterator<Row> rowIt2 = null; 
+				rowIt2 = men.LeerFicherosExcel(rutaArchivo);				   			
+
+				String cabecera = new String("<b> MENU DEL MES </b> \n");
+				cabecera = cabecera.concat("------------------------------------------- \n");
+				String quincena1 = menuQuincena(rowIt1,6);
+				String quincena2 = menuQuincena(rowIt2,36);
+				
+				
+				SendMessage msgCabecera = new SendMessage()
+		                .setChatId(chat_id)
+		                .setParseMode(ParseMode.HTML)
+		                .setText(cabecera);
+				SendMessage msgQuincena1 = new SendMessage()
+		                .setChatId(chat_id)
+		                .setParseMode(ParseMode.HTML)
+		                .setText(quincena1);
+				SendMessage msgQuincena2 = new SendMessage()
+		                .setChatId(chat_id)
+		                .setParseMode(ParseMode.HTML)
+		                .setText(quincena2);
+				try {
+					execute(msgCabecera);
+			        execute(msgQuincena1); 
+			        execute(msgQuincena2);
+			    } catch (TelegramApiException e) {
+			        e.printStackTrace();
+			    }		
+            }else {
                 // Unknown command            	            			                    
                 SendMessage message = new SendMessage() // Create a message object object
                                 .setChatId(chat_id)
@@ -152,7 +311,7 @@ public class Consultorio extends TelegramLongPollingBot {
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
-            }        
+            }            
         }else if (update.hasCallbackQuery()) {
             // Set variables
             String call_data = update.getCallbackQuery().getData();
@@ -271,6 +430,54 @@ public class Consultorio extends TelegramLongPollingBot {
         }
     }
  
+    
+    private String menuQuincena(Iterator<Row> rowIterator, int linInicio) {
+    	
+    	String finalMessage = "";
+    	Row row;
+		int numRow = 0;					
+		boolean pintaLin = true;
+		// se recorre cada fila hasta el final
+		while (rowIterator.hasNext()) {					
+				row = rowIterator.next();
+				numRow++;
+				//se obtiene las celdas por fila
+				Iterator<Cell> cellIterator = row.cellIterator();
+				Cell cell;
+				int numCol = 0;
+				pintaLin = true; 
+				//se recorre cada celda
+				while (cellIterator.hasNext()) {
+					// se obtiene la celda en específico						
+					cell = cellIterator.next();
+					numCol++;					
+					// Ponemos el menu de cada semana del mes
+					if (numRow >= linInicio && numRow < linInicio + 30) {											
+							if (numCol == 1) {
+								finalMessage = finalMessage.concat("<b> Día </b>" + Math.round(cell.getNumericCellValue()) + " - ");
+							}
+							if (numCol == 2) {
+								if (!cell.getStringCellValue().equals("Sábado") && !cell.getStringCellValue().equals("Domingo")) {
+								  finalMessage = finalMessage.concat("<b>" + cell.getStringCellValue() + "</b> \n");								  
+								} else{ 
+									finalMessage = finalMessage.concat("<b>" + cell.getStringCellValue() + " ***************** </b> \n");
+									pintaLin = false;									
+								}  
+							}
+							if (numCol == 3 && pintaLin) {
+								finalMessage = finalMessage.concat(" 1º-> " + cell.getStringCellValue() + " - ");
+							}
+							if (numCol == 4 && pintaLin) {
+								finalMessage = finalMessage.concat(" 2º-> " + cell.getStringCellValue() + " - ");
+							}
+							if (numCol == 5 && pintaLin) {
+								finalMessage = finalMessage.concat(" Postre-> " + cell.getStringCellValue() + " \n");
+							}
+					}				
+				  }				    						
+			}						
+		return finalMessage;
+    }
     private void annadirSiNo_DatosPreg(EditMessageText msg,Pregunta preg) {
     	InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
