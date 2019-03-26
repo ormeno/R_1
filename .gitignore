@@ -1,4 +1,5 @@
 /target/
-.properties
-.zip
-.classpath
+/.settings/
+configuracion.properties
+*.zip
+*.classpath
