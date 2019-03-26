@@ -1,6 +1,23 @@
 /target/
-/.settings/
-/src/main/resources/
-configuracion.properties
+
+
+# eclipse
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
 *.zip
-*.classpath
+configuracion.properties
+local.properties
+.classpath
+.settings/
+.loadpath
+.externalToolBuilders/
+*.launch
+.buildpath
