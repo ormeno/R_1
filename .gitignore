@@ -13,6 +13,7 @@ tmp/**/*
 *.swp
 *~.nib
 *.zip
+*.xlsx
 configuracion.properties
 local.properties
 .classpath

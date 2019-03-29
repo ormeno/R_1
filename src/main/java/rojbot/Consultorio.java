@@ -52,6 +52,10 @@ public class Consultorio extends TelegramLongPollingBot {
         super(botOptions);
     }
 
+	public Consultorio() {
+		// TODO Auto-generated constructor stub
+	}
+
 	CallbackQuery respuesta = new CallbackQuery();    
 	ForwardMessage f = new ForwardMessage();
 
@@ -160,9 +164,10 @@ public class Consultorio extends TelegramLongPollingBot {
 				
 				String finalMessage = new String("<b> MENU DE HOY </b> \n");
 				finalMessage = finalMessage.concat("------------------------------------------- \n");
-				menu men = new menu();								
+				menu men = new menu();												
 				String nombreArchivo = "menu.xlsx";
-				String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;				
+				// String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;
+				String rutaArchivo = ".\\src\\main\\resources\\" + nombreArchivo;				
 				rowIterator = men.LeerFicherosExcel(rutaArchivo);
 
 				Row row;
@@ -207,7 +212,8 @@ public class Consultorio extends TelegramLongPollingBot {
 				finalMessage = finalMessage.concat("------------------------------------------- \n");
 				menu men = new menu();								
 				String nombreArchivo = "menu.xlsx";
-				String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;				
+				//String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;				
+				String rutaArchivo = ".\\src\\main\\resources\\" + nombreArchivo;
 				rowIterator = men.LeerFicherosExcel(rutaArchivo);
 
 				Row row;
@@ -256,7 +262,8 @@ public class Consultorio extends TelegramLongPollingBot {
 				//String finalMessage = new String("<b> MENU DEL MES DE ");
 				menu men = new menu();								
 				String nombreArchivo = "menu.xlsx";
-				String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;
+				//String rutaArchivo = "D:\\varios\\Berta\\" + nombreArchivo;
+				String rutaArchivo = ".\\src\\main\\resources\\" + nombreArchivo;
 				Iterator<Row> rowIt1 = null;
 				rowIt1 = men.LeerFicherosExcel(rutaArchivo);
 				Iterator<Row> rowIt2 = null; 
